@@ -1,5 +1,5 @@
 # chess-app
-WIP chess app
+WIP chess app, master branch has all the code
 
 chess-appE1:
 
