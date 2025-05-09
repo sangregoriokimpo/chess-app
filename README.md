@@ -5,3 +5,7 @@ chess-appE1:
 
 https://github.com/user-attachments/assets/cb6966b8-7276-49b8-827c-f3d4873cb108
 
+chess-appE2:
+
+https://github.com/user-attachments/assets/1f1b8e83-fcdf-459a-9562-d7098c4babbc
+
