@@ -9,35 +9,11 @@ import Tile from "../Tile/Tile"
 // import "../../referee/referee";
 import Referee from '../../referee/Referee'; 
 import { relative } from 'path';
-
-const horizontalAxis=['a','b','c','d','e','f','g','h'];
-const verticalAxis = ["1","2","3","4","5","6","7","8"];
+import { verticalAxis, horizontalAxis, Piece, PieceType, TeamType, initialBoardState } from '../../Constants';
 
 
 
-interface Piece{
-    image: string;
-    x: number;
-    y: number;
-    type: PieceType;
-    team: TeamType;
-}
 
-export enum PieceType{
-    PAWN,
-    BISHOP,
-    KNIGHT,
-    ROOK,
-    QUEEN,
-    KING
-}
-
-export enum TeamType{
-    OPPONENT,
-    OUR
-}
-
-const initialBoardState: Piece[] = [];
 
 for (let p = 0; p < 2; p++){
             const teamType = (p == 0) ? TeamType.OPPONENT : TeamType.OUR;
@@ -139,34 +115,93 @@ export default function Chessboard(){
         if(activePiece && chessBoard){
             const x = Math.floor((e.clientX - chessBoard.offsetLeft) / 100);
             const y = Math.abs(Math.ceil((e.clientY - chessBoard.offsetTop - 800) / 100));
-            console.log(x,y);
+
+            const currentPiece = pieces.find(p => p.x == gridX && p.y == gridY);
+            const attackedPiece = pieces.find(p => p.x == x && p.y == y);
+
+            if(currentPiece){
+                const validMove = referee.isValidMove(gridX,gridY,x,y,currentPiece.type,currentPiece.team,pieces);
+                const isEnPassantMove = referee.isEnPassantMove(gridX,gridY,x,y,currentPiece.type,currentPiece.team,pieces);
+
+                const pawnDirection = currentPiece.team == TeamType.OUR ? 1 : -1;
+                
+
+
+                if(isEnPassantMove){
+                    const updatedPieces = pieces.reduce((results,piece)=>{
+                        if(piece.x == gridX && piece.y == gridY){
+                            piece.enPassant = false;
+                            piece.x = x;
+                            piece.y = y;
+                            results.push(piece);
+                        }else if(!(piece.x == x && piece.y == y - pawnDirection)){
+                            if(piece.type == PieceType.PAWN){
+                                piece.enPassant = false;
+                            }
+                            results.push(piece);
+                        }
+                        return results;
+                    },[] as Piece[])
+                setPieces(updatedPieces);
+                }else if(validMove){
+                     const updatedPieces = pieces.reduce((results,piece) => {
+                            if(piece.x == gridX && piece.y == gridY){
+                                if(Math.abs(gridY - y) == 2 && piece.type == PieceType.PAWN){
+                                    //SPECIAL MOVE
+                                    console.log("En Passant True");
+                                    piece.enPassant = true;
+                                }else{
+                                    piece.enPassant = false;
+                                }
+                                piece.x = x;
+                                piece.y = y;
+                                results.push(piece);
+                            }else if(!(piece.x == x && piece.y == y)){
+                                if(piece.type == PieceType.PAWN){
+                                    piece.enPassant = false;
+                                }
+                                results.push(piece);
+                            }
+                            
+                            return results;
+
+                        }, [] as Piece[]);
+                        setPieces(updatedPieces);
+                        
+
+                }else{
+                    activePiece.style.position = 'relative';
+                    activePiece.style.removeProperty('top');
+                    activePiece.style.removeProperty('left');
+                }
+            }
 
             // referee.isValidMove(gridX,gridY,x,y,);
 
-            setPieces(value =>{
-                value.map(p =>{
-                    const pieces = value.map((p)=>{
-                        if(p.x == gridX && p.y == gridY){
-                            const validMove = referee.isValidMove(gridX,gridY,x,y,p.type,p.team);
-                            if(validMove){
-                                p.x =x;
-                                p.y = y;
-                            }else{
-                                activePiece.style.position = 'relative';
-                                activePiece.style.removeProperty('top');
-                                 activePiece.style.removeProperty('left');
+            // setPieces(value =>{
+            //     value.map(p =>{
+            //         const pieces = value.map((p)=>{
+            //             if(p.x == gridX && p.y == gridY){
+            //                 const validMove = referee.isValidMove(gridX,gridY,x,y,p.type,p.team,value);
+            //                 if(validMove){
+            //                     p.x =x;
+            //                     p.y = y;
+            //                 }else{
+            //                     activePiece.style.position = 'relative';
+            //                     activePiece.style.removeProperty('top');
+            //                      activePiece.style.removeProperty('left');
 
-                            }
+            //                 }
 
 
                             
-                        }
-                        return p;
-                    });
-                });
-                return pieces;
-            })
-            // pieces[0].x = 5;
+            //             }
+            //             return p;
+            //         });
+            //     });
+            //     return pieces;
+            // })
+            // // pieces[0].x = 5;
             setActivePiece(null);
             // activePiece = null;
         }
