@@ -32,6 +32,25 @@ export default class Referee {
     return false;
   }
 
+  getValidMoves(piece: Piece, boardState: Piece[]): Position[] {
+    const moves: Position[] = [];
+    const { x, y } = piece.position;
+
+    for (let newX = 0; newX < 8; newX++) {
+        for (let newY = 0; newY < 8; newY++) {
+        const isLegal = this.isValidMove(x, y, newX, newY, piece.type, piece.team, boardState) ||
+                        this.isEnPassantMove(x, y, newX, newY, piece.type, piece.team, boardState);
+
+        if (isLegal) {
+            moves.push({ x: newX, y: newY });
+        }
+        }
+    }
+
+    return moves;
+    }
+
+
   isValidMove(
     px: number,
     py: number,

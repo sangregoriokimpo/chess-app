@@ -17,6 +17,7 @@ export default function Chessboard() {
   const [grabPosition, setGrabPosition] = useState<Position | null>(null);
   const [gridPosition, setGridPosition] = useState<Position>({ x: 0, y: 0 });
   const [pieces, setPieces] = useState<Piece[]>(initializeBoard());
+  const [previewMoves, setPreviewMoves] = useState<Position[]>([]);
   const chessBoardRef = useRef<HTMLDivElement>(null);
   const referee = new Referee();
 
@@ -50,17 +51,24 @@ export default function Chessboard() {
     const element = e.target as HTMLElement;
     const chessBoard = chessBoardRef.current;
     if (element.classList.contains('chess-piece') && chessBoard) {
-    //   setGrabPosition({x:Math.floor((e.clientX - chessBoard.offsetLeft) / 100),y: Math.abs(Math.ceil((e.clientY - chessBoard.offsetTop - 800) / 100))});
-      const gridX = Math.floor((e.clientX - chessBoard.offsetLeft) / 100);
-      const gridY = Math.abs(Math.ceil((e.clientY - chessBoard.offsetTop - 800) / 100));
-      setGridPosition({ x: gridX, y: gridY });
+        const gridX = Math.floor((e.clientX - chessBoard.offsetLeft) / 100);
+        const gridY = Math.abs(Math.ceil((e.clientY - chessBoard.offsetTop - 800) / 100));
+        setGridPosition({ x: gridX, y: gridY });
 
-      element.style.position = 'absolute';
-      element.style.left = `${e.clientX - 50}px`;
-      element.style.top = `${e.clientY - 50}px`;
-      setActivePiece(element);
+        // 🧠 Find the selected piece
+        const selectedPiece = pieces.find(p => p.position.x === gridX && p.position.y === gridY);
+        if (selectedPiece) {
+        const moves = referee.getValidMoves(selectedPiece, pieces); 
+        setPreviewMoves(moves); 
+        }
+
+        element.style.position = 'absolute';
+        element.style.left = `${e.clientX - 50}px`;
+        element.style.top = `${e.clientY - 50}px`;
+        setActivePiece(element);
     }
-  }
+    }
+
 
   function movePiece(e: React.MouseEvent) {
     const chessBoard = chessBoardRef.current;
@@ -128,6 +136,8 @@ export default function Chessboard() {
       }
 
       setActivePiece(null);
+      setPreviewMoves([]);
+
     }
   }
 
@@ -136,7 +146,15 @@ export default function Chessboard() {
     for (let i = 0; i < horizontalAxis.length; i++) {
       const number = j + i + 2;
       const piece = pieces.find(p => p.position.x === i && p.position.y === j);
-      board.push(<Tile key={`${j},${i}`} image={piece?.image} number={number} />);
+      board.push(
+        <Tile
+            key={`${j},${i}`}
+            image={piece?.image}
+            number={number}
+            highlight={previewMoves.some(pos => pos.x === i && pos.y === j)}
+        />
+        );
+
     }
   }
 
