@@ -1,5 +1,7 @@
 # chess-app
-WIP chess app, master branch has all the code
+Developed an interactive chess engine in React and TypeScript featuring full rule enforcement (pawn promotion, en passant, check detection), object-oriented move validation through a centralized Referee class, and a dynamic drag-and-drop interface with DOM-based tile snapping for real-time gameplay responsiveness.
+
+Master branch ass all the code
 
 chess-appE1:
 
