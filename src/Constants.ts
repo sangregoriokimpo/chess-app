@@ -1,10 +1,16 @@
 export const verticalAxis = ["1","2","3","4","5","6","7","8"];
 export const horizontalAxis=['a','b','c','d','e','f','g','h'];
 
-export interface Piece{
-    image: string;
+export interface Position{
     x: number;
     y: number;
+}
+
+export interface Piece{
+    image: string;
+    // x: number;
+    // y: number;
+    position: Position;
     type: PieceType;
     team: TeamType;
     enPassant?: boolean;
@@ -25,3 +31,4 @@ export enum TeamType{
 }
 
 export const initialBoardState: Piece[] = [];
+
